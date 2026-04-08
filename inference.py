@@ -62,6 +62,9 @@ def _env_flag(name: str, default: bool) -> bool:
     return raw_value.strip().lower() not in {"0", "false", "no", "off", ""}
 
 
+VERBOSE_STDERR = _env_flag("INFERENCE_VERBOSE_STDERR", False)
+
+
 def strict_task_score(raw_score: float, *, used_fallback: bool) -> float:
     if used_fallback and _env_flag("STRICT_BASELINE_SCORING", True):
         return 0.0
@@ -1035,11 +1038,12 @@ def main() -> None:
 
         assert task_result is not None
         results.append(task_result)
-        sys.stderr.write(
-            f"{task_id.value}: score={task_result['score']:.4f} "
-            f"raw_score={task_result.get('raw_score', task_result['score']):.4f} "
-            f"fallback={str(task_result['used_fallback']).lower()}\n"
-        )
+        if VERBOSE_STDERR:
+            sys.stderr.write(
+                f"{task_id.value}: score={task_result['score']:.4f} "
+                f"raw_score={task_result.get('raw_score', task_result['score']):.4f} "
+                f"fallback={str(task_result['used_fallback']).lower()}\n"
+            )
 
     mean_score = sum(result["score"] for result in results) / len(results)
     raw_mean_score = sum(
@@ -1057,10 +1061,11 @@ def main() -> None:
         "results": results,
     }
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    sys.stderr.write(
-        f"mean_score={mean_score:.4f} raw_mean_score={raw_mean_score:.4f}\n"
-    )
-    sys.stderr.write(f"wrote={output_path}\n")
+    if VERBOSE_STDERR:
+        sys.stderr.write(
+            f"mean_score={mean_score:.4f} raw_mean_score={raw_mean_score:.4f}\n"
+        )
+        sys.stderr.write(f"wrote={output_path}\n")
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ colorTo: gray
 sdk: docker
 pinned: false
 app_port: 8000
-base_path: /web
+base_path: /
 tags:
   - openenv
   - finance
@@ -145,6 +145,7 @@ uvx --from openenv-core openenv validate --url http://localhost:8000
 The root [inference.py](./inference.py) script is the reproducible baseline.
 
 - OpenAI Python client
+- default `ENV_URL`: `https://ehsaaniqbal-invoiceops-env.hf.space`
 - default `API_BASE_URL`: `https://router.huggingface.co/v1`
 - default `MODEL_NAME`: `zai-org/GLM-5.1`
 - fallback tasks are zeroed in `mean_score` by default while raw environment scores are still preserved
@@ -161,9 +162,10 @@ Run it with:
 ```bash
 cd invoiceops_env
 HF_TOKEN=... \
-API_BASE_URL=https://router.huggingface.co/v1 \
 uv run python inference.py
 ```
+
+This matches the competition-style run: `inference.py` talks to the deployed Space by default and uses the Hugging Face router unless you override `ENV_URL`, `API_BASE_URL`, or `MODEL_NAME`.
 
 Optional environment variables:
 

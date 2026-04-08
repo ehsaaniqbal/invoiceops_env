@@ -29,7 +29,7 @@ from invoiceops_env.models import (
     TaskId,
 )
 
-ENV_URL = os.getenv("ENV_URL", "http://localhost:8000")
+ENV_URL = os.getenv("ENV_URL", "https://ehsaaniqbal-invoiceops-env.hf.space")
 DEFAULT_HF_ROUTER_BASE_URL = "https://router.huggingface.co/v1"
 API_BASE_URL = os.getenv("API_BASE_URL", DEFAULT_HF_ROUTER_BASE_URL)
 MODEL_NAME = os.getenv("MODEL_NAME", "zai-org/GLM-5.1")

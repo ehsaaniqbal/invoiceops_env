@@ -1,0 +1,374 @@
+{
+  "scenario_id": "medium_plus",
+  "task_id": "medium_plus",
+  "case_id": "CASE-MEDIUMPLUS-001",
+  "title": "PO invoice with one receipt-blocked line after duplicate clearance",
+  "description": "Review a PO-backed goods invoice with a possible duplicate flag and a short-received line. The correct action depends on clearing the duplicate, judging the unsupported amount on the short line, and choosing partial release instead of a full invoice hold.",
+  "step_limit": 17,
+  "queue_card": {
+    "case_id": "CASE-MEDIUMPLUS-001",
+    "vendor_name": "Apex Facility Systems",
+    "vendor_id": "V-411",
+    "invoice_number": "AFS-7719/B",
+    "invoice_date": "2026-03-24",
+    "invoice_total": 3050.0,
+    "currency": "USD",
+    "po_number": "PO-55312",
+    "risk_flags": [
+      "po_invoice",
+      "possible_duplicate",
+      "receipt_variance",
+      "partial_receipt"
+    ],
+    "summary": "PO-backed goods invoice with duplicate review open and one receipt support issue."
+  },
+  "artifacts": [
+    {
+      "artifact_id": "art-invoice",
+      "artifact_type": "invoice_packet",
+      "title": "Invoice packet AFS-7719/B",
+      "summary": "Two-line goods invoice with one high-rate short line.",
+      "fields": [
+        {"label": "Vendor", "value": "Apex Facility Systems"},
+        {"label": "Invoice number", "value": "AFS-7719/B"},
+        {"label": "Invoice date", "value": "2026-03-24"},
+        {"label": "PO number", "value": "PO-55312"},
+        {"label": "Payment terms", "value": "Net 30"},
+        {"label": "Gross total", "value": "3050.00 USD"}
+      ],
+      "line_items": [
+        {
+          "line_id": "L1",
+          "description": "Relay control modules",
+          "quantity": 10.0,
+          "unit_price": 185.0,
+          "amount": 1850.0,
+          "status": "invoiced",
+          "notes": "PO line 10"
+        },
+        {
+          "line_id": "L2",
+          "description": "Backup power supply units",
+          "quantity": 5.0,
+          "unit_price": 240.0,
+          "amount": 1200.0,
+          "status": "invoiced",
+          "notes": "PO line 20"
+        }
+      ],
+      "events": [
+        {
+          "event_id": "evt-received",
+          "event_type": "invoice_received",
+          "event_date": "2026-03-25",
+          "description": "Invoice packet received through EDI channel",
+          "quantity": null,
+          "amount": 3050.0,
+          "status": "queued"
+        }
+      ],
+      "related_refs": [
+        "art-po",
+        "art-receipts",
+        "art-policy",
+        "EX-POSSIBLE-DUP",
+        "EX-RECEIPT-L2"
+      ]
+    },
+    {
+      "artifact_id": "art-po",
+      "artifact_type": "purchase_order",
+      "title": "PO-55312",
+      "summary": "Purchase order for facility control hardware.",
+      "fields": [
+        {"label": "Buyer", "value": "Facilities Procurement"},
+        {"label": "PO number", "value": "PO-55312"},
+        {"label": "Supplier", "value": "Apex Facility Systems"},
+        {"label": "Payment terms", "value": "Net 30"}
+      ],
+      "line_items": [
+        {
+          "line_id": "L1",
+          "description": "Relay control modules",
+          "quantity": 10.0,
+          "unit_price": 185.0,
+          "amount": 1850.0,
+          "status": "ordered",
+          "notes": "PO line 10"
+        },
+        {
+          "line_id": "L2",
+          "description": "Backup power supply units",
+          "quantity": 5.0,
+          "unit_price": 240.0,
+          "amount": 1200.0,
+          "status": "ordered",
+          "notes": "PO line 20"
+        }
+      ],
+      "events": [],
+      "related_refs": ["art-invoice", "art-receipts"]
+    },
+    {
+      "artifact_id": "art-receipts",
+      "artifact_type": "receipt_log",
+      "title": "Receipt log for PO-55312",
+      "summary": "One line is fully received and one line remains one unit short.",
+      "fields": [
+        {"label": "Receiving site", "value": "South regional warehouse"},
+        {"label": "Last receipt update", "value": "2026-03-23"},
+        {"label": "Open receipt issue", "value": "PO line 20 remains one unit short"}
+      ],
+      "line_items": [
+        {
+          "line_id": "L1",
+          "description": "Relay control modules",
+          "quantity": 10.0,
+          "unit_price": null,
+          "amount": 1850.0,
+          "status": "fully_received",
+          "notes": "Received in full on 2026-03-22"
+        },
+        {
+          "line_id": "L2",
+          "description": "Backup power supply units",
+          "quantity": 4.0,
+          "unit_price": null,
+          "amount": null,
+          "status": "short_received",
+          "notes": "4 of 5 units posted on 2026-03-23; remaining unit not yet received"
+        }
+      ],
+      "events": [
+        {
+          "event_id": "evt-rcv-l1",
+          "event_type": "goods_receipt",
+          "event_date": "2026-03-22",
+          "description": "Received 10 relay control modules",
+          "quantity": 10.0,
+          "amount": 1850.0,
+          "status": "posted"
+        },
+        {
+          "event_id": "evt-rcv-l2",
+          "event_type": "goods_receipt",
+          "event_date": "2026-03-23",
+          "description": "Received 4 backup power supply units",
+          "quantity": 4.0,
+          "amount": null,
+          "status": "posted"
+        }
+      ],
+      "related_refs": ["art-po", "art-invoice", "EX-RECEIPT-L2"]
+    },
+    {
+      "artifact_id": "art-policy",
+      "artifact_type": "policy_card",
+      "title": "AP policy card",
+      "summary": "Duplicate, de minimis receipt shortage, and partial release rules.",
+      "fields": [
+        {"label": "Duplicate review rule", "value": "When possible_duplicate is flagged, review a normalized invoice number match before relying on heuristic amount/date similarity."},
+        {"label": "Reversed prior record", "value": "A reversed or voided prior record with the same vendor and invoice number is not a payment block."},
+        {"label": "De minimis receipt shortage", "value": "A line may release only when unsupported amount is 150.00 USD or less. If unsupported amount exceeds that threshold, hold the line to Receiving."},
+        {"label": "Partial release rule", "value": "If only specific lines remain unsupported and no case-level blocker exists, hold the affected lines and release the approved lines instead of holding the full invoice."}
+      ],
+      "line_items": [],
+      "events": [],
+      "related_refs": ["EX-POSSIBLE-DUP", "EX-RECEIPT-L2"]
+    }
+  ],
+  "exceptions": [
+    {
+      "exception_id": "EX-POSSIBLE-DUP",
+      "exception_type": "possible_duplicate",
+      "severity": "high",
+      "headline": "Duplicate control is open for this invoice",
+      "impacted_line_ids": ["L1", "L2"],
+      "short_description": "A prior AP record may overlap with this invoice.",
+      "fields": [
+        {"label": "Invoice number", "value": "AFS-7719/B"},
+        {"label": "Vendor", "value": "Apex Facility Systems"},
+        {"label": "Control status", "value": "Duplicate review required before release"}
+      ],
+      "reviewer_guidance": "Run the relevant duplicate search and review surfaced candidates before deciding."
+    },
+    {
+      "exception_id": "EX-RECEIPT-L2",
+      "exception_type": "receipt_quantity_variance",
+      "severity": "high",
+      "headline": "Receipt support is short on L2",
+      "impacted_line_ids": ["L2"],
+      "short_description": "Received quantity on L2 is below the invoiced quantity.",
+      "fields": [
+        {"label": "Invoice quantity", "value": "5"},
+        {"label": "Received quantity", "value": "4"},
+        {"label": "Short quantity", "value": "1"}
+      ],
+      "reviewer_guidance": "Review the invoiced unit rate, receipt log, and shortage rule before deciding whether L2 can release."
+    }
+  ],
+  "duplicate_candidates": [
+    {
+      "candidate_id": "CAND-NORM-01",
+      "vendor_name": "Apex Facility Systems",
+      "invoice_number": "AFS7719B",
+      "invoice_date": "2026-03-13",
+      "gross_amount": 3050.0,
+      "status": "reversed on 2026-03-14 after import duplicate; closed",
+      "match_basis": "Normalized invoice number + vendor + gross amount",
+      "overlap_summary": "Same normalized invoice number. Prior record was reversed before payment.",
+      "supported_match_strategies": [
+        "normalized_invoice_no"
+      ]
+    },
+    {
+      "candidate_id": "CAND-AMT-02",
+      "vendor_name": "Apex Facility Systems",
+      "invoice_number": "AFS-7688",
+      "invoice_date": "2026-03-24",
+      "gross_amount": 3050.0,
+      "status": "open",
+      "match_basis": "Vendor + gross amount + nearby invoice date",
+      "overlap_summary": "Same amount and nearby date, but invoice number differs.",
+      "supported_match_strategies": [
+        "vendor_amount_date"
+      ]
+    }
+  ],
+  "hidden_truth": {
+    "line_expectations": {
+      "L1": {
+        "amount": 1850.0,
+        "score_map": {
+          "approve": 1.0,
+          "hold": 0.25,
+          "escalate": 0.1,
+          "reject": 0.0
+        },
+        "accepted_reason_sets": [
+          ["matched_to_po_and_receipt", "safe_to_pay"],
+          ["safe_to_pay"],
+          ["possible_duplicate_review", "safe_to_pay"]
+        ],
+        "accepted_routes": [],
+        "gating_refs": [
+          "art-po",
+          "art-receipts",
+          "EX-POSSIBLE-DUP",
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01"
+        ],
+        "safe_gating_refs": [
+          "art-po",
+          "art-receipts",
+          "EX-POSSIBLE-DUP",
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01"
+        ],
+        "decisive_refs": [
+          "art-po",
+          "art-receipts",
+          "EX-POSSIBLE-DUP",
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01"
+        ],
+        "unsafe_approve": false
+      },
+      "L2": {
+        "amount": 1200.0,
+        "score_map": {
+          "hold": 1.0,
+          "escalate": 0.45,
+          "reject": 0.1,
+          "approve": 0.0
+        },
+        "accepted_reason_sets": [
+          ["receipt_not_confirmed"],
+          ["receipt_not_confirmed", "partial_receipt_pending"],
+          ["partial_receipt_pending"]
+        ],
+        "accepted_routes": ["receiving"],
+        "gating_refs": [
+          "art-invoice",
+          "art-receipts",
+          "EX-RECEIPT-L2",
+          "art-policy"
+        ],
+        "safe_gating_refs": [
+          "art-receipts",
+          "EX-RECEIPT-L2"
+        ],
+        "decisive_refs": [
+          "art-invoice",
+          "art-receipts",
+          "EX-RECEIPT-L2",
+          "art-policy"
+        ],
+        "unsafe_approve": true
+      }
+    },
+    "header_expectation": {
+      "score_map": {
+        "release_approved_lines": 1.0,
+        "hold_full_invoice": 0.55,
+        "escalate_case": 0.35,
+        "reject_full_invoice": 0.0
+      },
+      "accepted_reason_sets": [
+        ["possible_duplicate_review", "receipt_not_confirmed", "safe_to_pay"],
+        ["possible_duplicate_review", "partial_receipt_pending", "safe_to_pay"],
+        ["receipt_not_confirmed", "safe_to_pay"]
+      ],
+      "accepted_routes": [],
+      "gating_refs": [
+        "art-policy",
+        "art-receipts",
+        "EX-RECEIPT-L2",
+        "duplicate_check:normalized_invoice_no",
+        "CAND-NORM-01"
+      ],
+      "safe_gating_refs": [
+        "art-receipts",
+        "EX-RECEIPT-L2",
+        "duplicate_check:normalized_invoice_no",
+        "CAND-NORM-01"
+      ],
+      "decisive_refs": [
+        "art-policy",
+        "art-receipts",
+        "EX-RECEIPT-L2",
+        "duplicate_check:normalized_invoice_no",
+        "CAND-NORM-01"
+      ],
+      "unsafe_recommendations": [],
+      "overconservative_recommendations": ["hold_full_invoice", "escalate_case"]
+    },
+    "note_expectations": [
+      {
+        "issue_id": "duplicate_cleared",
+        "accepted_reason_sets": [
+          ["possible_duplicate_review", "safe_to_pay"],
+          ["possible_duplicate_review"]
+        ],
+        "decisive_refs": [
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01"
+        ]
+      },
+      {
+        "issue_id": "receipt_short_hold",
+        "accepted_reason_sets": [
+          ["receipt_not_confirmed"],
+          ["partial_receipt_pending"]
+        ],
+        "decisive_refs": [
+          "art-invoice",
+          "art-receipts",
+          "art-policy",
+          "EX-RECEIPT-L2"
+        ]
+      }
+    ],
+    "efficient_step_target": 13
+  }
+}

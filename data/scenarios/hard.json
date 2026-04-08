@@ -1,0 +1,537 @@
+{
+  "scenario_id": "hard",
+  "task_id": "hard",
+  "case_id": "CASE-HARD-001",
+  "title": "Project invoice with mixed support, duplicate review, and tax block",
+  "description": "Review a project equipment invoice with duplicate, receiving, and tax controls. Resolve each line and the case header from the evidence you gather.",
+  "step_limit": 24,
+  "queue_card": {
+    "case_id": "CASE-HARD-001",
+    "vendor_name": "Northshore Controls",
+    "vendor_id": "V-229",
+    "invoice_number": "NC-8831/2",
+    "invoice_date": "2026-03-29",
+    "invoice_total": 12936.3,
+    "currency": "USD",
+    "po_number": "PO-44019",
+    "risk_flags": [
+      "po_invoice",
+      "possible_duplicate",
+      "receipt_variance",
+      "partial_receipt",
+      "tax_variance"
+    ],
+    "summary": "Project equipment invoice with duplicate, receipt, and tax controls open."
+  },
+  "artifacts": [
+    {
+      "artifact_id": "art-invoice",
+      "artifact_type": "invoice_packet",
+      "title": "Invoice packet NC-8831/2",
+      "summary": "Three-line project equipment invoice with billed sales tax and a slash-suffixed invoice number.",
+      "fields": [
+        {"label": "Vendor", "value": "Northshore Controls"},
+        {"label": "Invoice number", "value": "NC-8831/2"},
+        {"label": "Invoice date", "value": "2026-03-29"},
+        {"label": "PO number", "value": "PO-44019"},
+        {"label": "Project code", "value": "GREEN-440"},
+        {"label": "Subtotal", "value": "12090.00 USD"},
+        {"label": "Tax", "value": "846.30 USD"},
+        {"label": "Gross total", "value": "12936.30 USD"}
+      ],
+      "line_items": [
+        {
+          "line_id": "L1",
+          "description": "Calibration harness assemblies",
+          "quantity": 42.0,
+          "unit_price": 95.0,
+          "amount": 3990.0,
+          "status": "invoiced",
+          "notes": "PO line 10"
+        },
+        {
+          "line_id": "L2",
+          "description": "Field junction boxes",
+          "quantity": 18.0,
+          "unit_price": 190.0,
+          "amount": 3420.0,
+          "status": "invoiced",
+          "notes": "PO line 20"
+        },
+        {
+          "line_id": "L3",
+          "description": "Sensor mounting rails",
+          "quantity": 36.0,
+          "unit_price": 130.0,
+          "amount": 4680.0,
+          "status": "invoiced",
+          "notes": "PO line 30"
+        }
+      ],
+      "events": [
+        {
+          "event_id": "evt-received",
+          "event_type": "invoice_received",
+          "event_date": "2026-03-30",
+          "description": "AP queue received invoice packet through EDI",
+          "quantity": null,
+          "amount": 12936.3,
+          "status": "queued"
+        }
+      ],
+      "related_refs": [
+        "art-po",
+        "art-receipts",
+        "art-history",
+        "art-vendor",
+        "art-policy",
+        "EX-POSSIBLE-DUP",
+        "EX-RECEIPT-L1",
+        "EX-RECEIPT-L2",
+        "EX-TAX-001"
+      ]
+    },
+    {
+      "artifact_id": "art-po",
+      "artifact_type": "purchase_order",
+      "title": "PO-44019",
+      "summary": "Project equipment order for GREEN-440.",
+      "fields": [
+        {"label": "Buyer", "value": "Project Procurement"},
+        {"label": "PO number", "value": "PO-44019"},
+        {"label": "Supplier", "value": "Northshore Controls"},
+        {"label": "Project code", "value": "GREEN-440"},
+        {"label": "Tax handling", "value": "GREEN-440 exemption certificate applies; consult AP tax rules when billed tax appears."}
+      ],
+      "line_items": [
+        {
+          "line_id": "L1",
+          "description": "Calibration harness assemblies",
+          "quantity": 42.0,
+          "unit_price": 95.0,
+          "amount": 3990.0,
+          "status": "ordered",
+          "notes": "PO line 10"
+        },
+        {
+          "line_id": "L2",
+          "description": "Field junction boxes",
+          "quantity": 18.0,
+          "unit_price": 190.0,
+          "amount": 3420.0,
+          "status": "ordered",
+          "notes": "PO line 20"
+        },
+        {
+          "line_id": "L3",
+          "description": "Sensor mounting rails",
+          "quantity": 36.0,
+          "unit_price": 130.0,
+          "amount": 4680.0,
+          "status": "ordered",
+          "notes": "PO line 30"
+        }
+      ],
+      "events": [],
+      "related_refs": ["art-invoice", "art-receipts", "art-vendor"]
+    },
+    {
+      "artifact_id": "art-receipts",
+      "artifact_type": "receipt_log",
+      "title": "Receipt log for PO-44019",
+      "summary": "One line is short, one line is under later receiving review, and one line is fully received.",
+      "fields": [
+        {"label": "Receiving site", "value": "GREEN-440 project warehouse"},
+        {"label": "Last receipt update", "value": "2026-03-30"},
+        {"label": "Open receipt issue", "value": "PO line 20 needs receiving follow-up before support is final"}
+      ],
+      "line_items": [
+        {
+          "line_id": "L1",
+          "description": "Calibration harness assemblies",
+          "quantity": 41.0,
+          "unit_price": null,
+          "amount": null,
+          "status": "short_received",
+          "notes": "41 of 42 units posted on 2026-03-27"
+        },
+        {
+          "line_id": "L2",
+          "description": "Field junction boxes",
+          "quantity": 18.0,
+          "unit_price": null,
+          "amount": null,
+          "status": "received_under_review",
+          "notes": "Initial receipt posted on 2026-03-26; see receiving history for current support"
+        },
+        {
+          "line_id": "L3",
+          "description": "Sensor mounting rails",
+          "quantity": 36.0,
+          "unit_price": null,
+          "amount": null,
+          "status": "fully_received",
+          "notes": "Received in full on 2026-03-28"
+        }
+      ],
+      "events": [
+        {
+          "event_id": "evt-rcv-l1",
+          "event_type": "goods_receipt",
+          "event_date": "2026-03-27",
+          "description": "Received 41 calibration harness assemblies",
+          "quantity": 41.0,
+          "amount": null,
+          "status": "posted"
+        },
+        {
+          "event_id": "evt-rcv-l2-initial",
+          "event_type": "goods_receipt",
+          "event_date": "2026-03-26",
+          "description": "Received 18 field junction boxes",
+          "quantity": 18.0,
+          "amount": null,
+          "status": "initially_posted"
+        },
+        {
+          "event_id": "evt-rcv-l2-review",
+          "event_type": "receiving_review",
+          "event_date": "2026-03-30",
+          "description": "Receiving posted a follow-up control update for 18 field junction boxes after damage inspection",
+          "quantity": null,
+          "amount": null,
+          "status": "review_open"
+        },
+        {
+          "event_id": "evt-rcv-l3",
+          "event_type": "goods_receipt",
+          "event_date": "2026-03-28",
+          "description": "Received 36 sensor mounting rails",
+          "quantity": 36.0,
+          "amount": null,
+          "status": "posted"
+        }
+      ],
+      "related_refs": ["art-po", "art-history"]
+    },
+    {
+      "artifact_id": "art-history",
+      "artifact_type": "invoice_history",
+      "title": "Receiving and invoice history for NC-8831/2",
+      "summary": "History shows a reversed prior AP import and an open later receiving hold on PO line 20.",
+      "fields": [
+        {"label": "Prior AP duplicate status", "value": "Same normalized invoice number was reversed before payment after EDI retry"},
+        {"label": "Latest receiving control", "value": "Damage hold case RCV-1187 is open on PO line 20 as of 2026-03-30"},
+        {"label": "Replacement ETA", "value": "Pending vendor reship confirmation"}
+      ],
+      "line_items": [],
+      "events": [
+        {
+          "event_id": "evt-dup-reversal",
+          "event_type": "invoice_reversal",
+          "event_date": "2026-03-18",
+          "description": "Prior AP record NC88312 reversed before payment after duplicate EDI import",
+          "quantity": null,
+          "amount": 12936.3,
+          "status": "closed"
+        },
+        {
+          "event_id": "evt-receiving-hold",
+          "event_type": "receiving_hold",
+          "event_date": "2026-03-30",
+          "description": "Receiving opened a damage hold on PO line 20 after inspection; replacement disposition pending",
+          "quantity": 18.0,
+          "amount": 3420.0,
+          "status": "open"
+        }
+      ],
+      "related_refs": ["EX-POSSIBLE-DUP", "EX-RECEIPT-L2", "art-receipts"]
+    },
+    {
+      "artifact_id": "art-vendor",
+      "artifact_type": "vendor_master",
+      "title": "Vendor master: Northshore Controls",
+      "summary": "Active vendor with an active GREEN-440 project exemption profile.",
+      "fields": [
+        {"label": "Vendor ID", "value": "V-229"},
+        {"label": "Vendor status", "value": "Active"},
+        {"label": "Project exemption profile", "value": "GREEN-440 exemption certificate EX-118 active through 2026-12-31"},
+        {"label": "Tax note", "value": "Exemption certificate is on file for GREEN-440; consult AP tax handling rules when billed tax appears"}
+      ],
+      "line_items": [],
+      "events": [],
+      "related_refs": ["art-invoice", "art-po", "EX-TAX-001"]
+    },
+    {
+      "artifact_id": "art-policy",
+      "artifact_type": "policy_card",
+      "title": "AP policy card",
+      "summary": "Duplicate, receipt, chronology, and tax handling rules for project invoices.",
+      "fields": [
+        {"label": "Duplicate review rule", "value": "When possible_duplicate is flagged on format variants such as slash or punctuation changes, review a normalized invoice number match before relying on heuristic amount/date similarity."},
+        {"label": "Reversed duplicate rule", "value": "A prior AP record reversed or voided before payment is not a payment block."},
+        {"label": "De minimis receipt shortage", "value": "A line may release when unsupported amount is 150.00 USD or less and no later receiving reversal or hold remains."},
+        {"label": "Receipt chronology", "value": "The latest receiving control event supersedes earlier posted receipt support. If current support is still under review, route the line to Receiving instead of approving it."},
+        {"label": "Tax dispute rule", "value": "If billed tax conflicts with active exempt project status, hold the full invoice and route the case to tax even when supported goods lines are approved."}
+      ],
+      "line_items": [],
+      "events": [],
+      "related_refs": ["EX-POSSIBLE-DUP", "EX-RECEIPT-L1", "EX-RECEIPT-L2", "EX-TAX-001"]
+    }
+  ],
+  "exceptions": [
+    {
+      "exception_id": "EX-POSSIBLE-DUP",
+      "exception_type": "possible_duplicate",
+      "severity": "high",
+      "headline": "Duplicate control is open for this invoice",
+      "impacted_line_ids": ["L1", "L2", "L3"],
+      "short_description": "A prior AP record may overlap with this invoice.",
+      "fields": [
+        {"label": "Invoice number", "value": "NC-8831/2"},
+        {"label": "Vendor", "value": "Northshore Controls"},
+        {"label": "Control status", "value": "Duplicate review required before release"}
+      ],
+      "reviewer_guidance": "Run the relevant duplicate search and review candidate status before deciding."
+    },
+    {
+      "exception_id": "EX-RECEIPT-L1",
+      "exception_type": "receipt_quantity_variance",
+      "severity": "medium",
+      "headline": "Receipt support is short on L1",
+      "impacted_line_ids": ["L1"],
+      "short_description": "Received quantity on L1 is below the invoiced quantity.",
+      "fields": [
+        {"label": "Invoice quantity", "value": "42"},
+        {"label": "Received quantity", "value": "41"},
+        {"label": "Short quantity", "value": "1"}
+      ],
+      "reviewer_guidance": "Review the invoice unit rate, receipt details, and shortage rule before deciding."
+    },
+    {
+      "exception_id": "EX-RECEIPT-L2",
+      "exception_type": "receipt_quantity_variance",
+      "severity": "high",
+      "headline": "Receipt support changed after initial posting on L2",
+      "impacted_line_ids": ["L2"],
+      "short_description": "The initial receipt support on L2 may no longer be current.",
+      "fields": [
+        {"label": "Invoice quantity", "value": "18"},
+        {"label": "Initial posted receipt", "value": "18 units on 2026-03-26"},
+        {"label": "Latest control update", "value": "Receiving review posted on 2026-03-30"}
+      ],
+      "reviewer_guidance": "Review the receipt log and receiving history before deciding whether support is still current."
+    },
+    {
+      "exception_id": "EX-TAX-001",
+      "exception_type": "tax_variance",
+      "severity": "high",
+      "headline": "Tax control is open for this invoice",
+      "impacted_line_ids": ["L1", "L2", "L3"],
+      "short_description": "Billed tax may conflict with the expected project tax treatment.",
+      "fields": [
+        {"label": "Project code", "value": "GREEN-440"},
+        {"label": "Invoice taxable basis", "value": "12090.00 USD"},
+        {"label": "Billed tax", "value": "846.30 USD"},
+        {"label": "Jurisdiction", "value": "Washington"}
+      ],
+      "reviewer_guidance": "Review the vendor tax profile and policy before deciding what can be released."
+    }
+  ],
+  "duplicate_candidates": [
+    {
+      "candidate_id": "CAND-NORM-01",
+      "vendor_name": "Northshore Controls",
+      "invoice_number": "NC88312",
+      "invoice_date": "2026-03-18",
+      "gross_amount": 12936.3,
+      "status": "reversed on 2026-03-18 before payment after EDI retry; closed",
+      "match_basis": "Normalized invoice number + vendor + gross amount",
+      "overlap_summary": "Same normalized invoice number. Prior AP record was reversed before payment.",
+      "supported_match_strategies": ["normalized_invoice_no"]
+    },
+    {
+      "candidate_id": "CAND-AMT-02",
+      "vendor_name": "Northshore Controls",
+      "invoice_number": "NC-8807",
+      "invoice_date": "2026-03-29",
+      "gross_amount": 12936.3,
+      "status": "open",
+      "match_basis": "Vendor + gross amount + nearby invoice date",
+      "overlap_summary": "Same amount and nearby date, but invoice number and project context differ.",
+      "supported_match_strategies": ["vendor_amount_date"]
+    }
+  ],
+  "hidden_truth": {
+    "line_expectations": {
+      "L1": {
+        "amount": 3990.0,
+        "score_map": {
+          "approve": 1.0,
+          "hold": 0.25,
+          "escalate": 0.1,
+          "reject": 0.0
+        },
+        "accepted_reason_sets": [
+          ["partial_receipt_pending", "safe_to_pay"],
+          ["safe_to_pay"],
+          ["partial_receipt_pending"]
+        ],
+        "accepted_routes": [],
+        "gating_refs": [
+          "art-invoice",
+          "art-receipts",
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01",
+          "EX-RECEIPT-L1",
+          "art-policy"
+        ],
+        "safe_gating_refs": [
+          "art-receipts",
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01",
+          "EX-RECEIPT-L1"
+        ],
+        "decisive_refs": [
+          "art-invoice",
+          "art-receipts",
+          "EX-RECEIPT-L1",
+          "art-policy",
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01"
+        ],
+        "unsafe_approve": false
+      },
+      "L2": {
+        "amount": 3420.0,
+        "score_map": {
+          "hold": 1.0,
+          "escalate": 0.45,
+          "reject": 0.1,
+          "approve": 0.0
+        },
+        "accepted_reason_sets": [
+          ["receipt_not_confirmed"],
+          ["receipt_not_confirmed", "partial_receipt_pending"]
+        ],
+        "accepted_routes": ["receiving"],
+        "gating_refs": [
+          "art-receipts",
+          "art-history",
+          "EX-RECEIPT-L2",
+          "art-policy"
+        ],
+        "safe_gating_refs": [
+          "art-receipts",
+          "EX-RECEIPT-L2"
+        ],
+        "decisive_refs": [
+          "art-receipts",
+          "art-history",
+          "EX-RECEIPT-L2",
+          "art-policy"
+        ],
+        "unsafe_approve": true
+      },
+      "L3": {
+        "amount": 4680.0,
+        "score_map": {
+          "approve": 1.0,
+          "hold": 0.1,
+          "escalate": 0.05,
+          "reject": 0.0
+        },
+        "accepted_reason_sets": [
+          ["matched_to_po_and_receipt", "safe_to_pay"],
+          ["safe_to_pay"],
+          ["possible_duplicate_review"]
+        ],
+        "accepted_routes": [],
+        "gating_refs": [
+          "art-invoice",
+          "art-receipts",
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01"
+        ],
+        "safe_gating_refs": [
+          "art-receipts",
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01"
+        ],
+        "decisive_refs": [
+          "art-invoice",
+          "art-receipts",
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01"
+        ],
+        "unsafe_approve": false
+      }
+    },
+    "header_expectation": {
+      "score_map": {
+        "hold_full_invoice": 1.0,
+        "escalate_case": 0.55,
+        "reject_full_invoice": 0.05,
+        "release_approved_lines": 0.0
+      },
+      "accepted_reason_sets": [
+        ["tax_amount_mismatch"],
+        ["tax_amount_mismatch", "receipt_not_confirmed"],
+        ["tax_amount_mismatch", "safe_to_pay"]
+      ],
+      "accepted_routes": ["tax"],
+      "gating_refs": [
+        "art-vendor",
+        "art-policy",
+        "EX-TAX-001"
+      ],
+      "safe_gating_refs": [
+        "art-vendor",
+        "art-policy",
+        "EX-TAX-001"
+      ],
+      "decisive_refs": [
+        "art-vendor",
+        "art-policy",
+        "EX-TAX-001"
+      ],
+      "unsafe_recommendations": ["release_approved_lines"],
+      "overconservative_recommendations": ["escalate_case"]
+    },
+    "note_expectations": [
+      {
+        "issue_id": "duplicate_cleared",
+        "accepted_reason_sets": [
+          ["possible_duplicate_review", "safe_to_pay"],
+          ["possible_duplicate_review"]
+        ],
+        "decisive_refs": [
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01"
+        ]
+      },
+      {
+        "issue_id": "receipt_reversal_hold",
+        "accepted_reason_sets": [
+          ["receipt_not_confirmed"]
+        ],
+        "decisive_refs": [
+          "art-history",
+          "EX-RECEIPT-L2"
+        ]
+      },
+      {
+        "issue_id": "tax_hold",
+        "accepted_reason_sets": [
+          ["tax_amount_mismatch"]
+        ],
+        "decisive_refs": [
+          "art-vendor",
+          "art-policy",
+          "EX-TAX-001"
+        ]
+      }
+    ],
+    "efficient_step_target": 18
+  }
+}

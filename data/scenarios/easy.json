@@ -1,0 +1,167 @@
+{
+  "scenario_id": "easy",
+  "task_id": "easy",
+  "case_id": "CASE-EASY-001",
+  "title": "Non-PO invoice with unstarted approval workflow",
+  "description": "Review a non-PO services invoice with an open approval control. Determine the correct requester-tier routing and payment recommendation from the workflow state and policy.",
+  "step_limit": 10,
+  "queue_card": {
+    "case_id": "CASE-EASY-001",
+    "vendor_name": "Orion Advisory Partners",
+    "vendor_id": "V-741",
+    "invoice_number": "OA-4401",
+    "invoice_date": "2026-03-20",
+    "invoice_total": 8500.0,
+    "currency": "USD",
+    "po_number": null,
+    "risk_flags": ["non_po_invoice", "missing_approval"],
+    "summary": "Non-PO services invoice with an open approval control."
+  },
+  "artifacts": [
+    {
+      "artifact_id": "art-invoice",
+      "artifact_type": "invoice_packet",
+      "title": "Invoice packet OA-4401",
+      "summary": "Single-line non-PO advisory invoice.",
+      "fields": [
+        {"label": "Vendor", "value": "Orion Advisory Partners"},
+        {"label": "Invoice number", "value": "OA-4401"},
+        {"label": "Invoice date", "value": "2026-03-20"},
+        {"label": "Invoice type", "value": "Non-PO services"},
+        {"label": "Cost center", "value": "EXEC-110"},
+        {"label": "Gross total", "value": "8500.00 USD"}
+      ],
+      "line_items": [
+        {
+          "line_id": "L1",
+          "description": "Q1 strategic advisory engagement package",
+          "quantity": 1.0,
+          "unit_price": 8500.0,
+          "amount": 8500.0,
+          "status": "invoiced",
+          "notes": "Cost center EXEC-110"
+        }
+      ],
+      "events": [
+        {
+          "event_id": "evt-received",
+          "event_type": "invoice_received",
+          "event_date": "2026-03-21",
+          "description": "Invoice packet received through AP inbox",
+          "quantity": null,
+          "amount": 8500.0,
+          "status": "queued"
+        }
+      ],
+      "related_refs": ["art-approval", "art-policy", "EX-NONPO-APPROVAL"]
+    },
+    {
+      "artifact_id": "art-approval",
+      "artifact_type": "approval_artifact",
+      "title": "Approval trail for OA-4401",
+      "summary": "Approval workflow has not been started.",
+      "fields": [
+        {"label": "Workflow status", "value": "Not initiated"},
+        {"label": "Requester", "value": "Jordan Kim"},
+        {"label": "Requester authority", "value": "Up to 10000.00 USD"},
+        {"label": "Submitted for approval", "value": "No"}
+      ],
+      "line_items": [],
+      "events": [],
+      "related_refs": ["art-policy", "EX-NONPO-APPROVAL"]
+    },
+    {
+      "artifact_id": "art-vendor",
+      "artifact_type": "vendor_master",
+      "title": "Vendor master: Orion Advisory Partners",
+      "summary": "Active professional-services vendor.",
+      "fields": [
+        {"label": "Vendor ID", "value": "V-741"},
+        {"label": "Payment terms", "value": "Net 30"},
+        {"label": "Vendor status", "value": "Active"},
+        {"label": "Blanket PO authorization", "value": "None"}
+      ],
+      "line_items": [],
+      "events": [],
+      "related_refs": ["art-invoice"]
+    },
+    {
+      "artifact_id": "art-policy",
+      "artifact_type": "policy_card",
+      "title": "AP policy card",
+      "summary": "Non-PO authorization and routing thresholds.",
+      "fields": [
+        {"label": "Non-PO authorization rule", "value": "Non-PO invoices require completed authorization before any payment release."},
+        {"label": "Requester authority limit", "value": "Business requester may authorize non-PO spend up to 10000.00 USD."},
+        {"label": "AP Manager authority", "value": "Amounts above requester authority require AP Manager authorization before release."},
+        {"label": "Unstarted workflow handling", "value": "If no approval workflow exists, place the invoice on hold and route it to the requester to initiate approval when the amount is within requester authority."}
+      ],
+      "line_items": [],
+      "events": [],
+      "related_refs": ["EX-NONPO-APPROVAL"]
+    }
+  ],
+  "exceptions": [
+    {
+      "exception_id": "EX-NONPO-APPROVAL",
+      "exception_type": "non_po_missing_approval",
+      "severity": "high",
+      "headline": "Authorization control is open for this non-PO invoice",
+      "impacted_line_ids": ["L1"],
+      "short_description": "The invoice has not completed required authorization.",
+      "fields": [
+        {"label": "Workflow status", "value": "Not initiated"},
+        {"label": "Invoice total", "value": "8500.00 USD"},
+        {"label": "Authorization status", "value": "Incomplete"}
+      ],
+      "reviewer_guidance": "Review the approval trail and policy before deciding."
+    }
+  ],
+  "duplicate_candidates": [],
+  "hidden_truth": {
+    "line_expectations": {
+      "L1": {
+        "amount": 8500.0,
+        "score_map": {
+          "hold": 1.0,
+          "escalate": 0.65,
+          "reject": 0.15,
+          "approve": 0.0
+        },
+        "accepted_reason_sets": [
+          ["non_po_approval_missing"]
+        ],
+        "accepted_routes": ["requester"],
+        "gating_refs": [],
+        "decisive_refs": ["art-invoice", "art-approval", "art-policy", "EX-NONPO-APPROVAL"],
+        "unsafe_approve": true
+      }
+    },
+    "header_expectation": {
+      "score_map": {
+        "hold_full_invoice": 1.0,
+        "escalate_case": 0.75,
+        "reject_full_invoice": 0.15,
+        "release_approved_lines": 0.0
+      },
+      "accepted_reason_sets": [
+        ["non_po_approval_missing"]
+      ],
+      "accepted_routes": ["requester"],
+      "gating_refs": [],
+      "decisive_refs": ["art-approval", "art-policy", "EX-NONPO-APPROVAL"],
+      "unsafe_recommendations": ["release_approved_lines"],
+      "overconservative_recommendations": []
+    },
+    "note_expectations": [
+      {
+        "issue_id": "non_po_workflow_missing",
+        "accepted_reason_sets": [
+          ["non_po_approval_missing"]
+        ],
+        "decisive_refs": ["art-approval", "art-policy"]
+      }
+    ],
+    "efficient_step_target": 8
+  }
+}

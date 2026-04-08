@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openenv-invoiceops_env"
+version = "0.1.0"
+description = "AP invoice exception handling environment for OpenEnv"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "openenv-core[core]>=0.2.2,<0.3",
+    "fastapi>=0.115.0",
+    "pydantic>=2.0.0",
+    "uvicorn[standard]>=0.24.0",
+    "openai>=2.7.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.scripts]
+server = "invoiceops_env.server.app:main"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["invoiceops_env", "invoiceops_env.server"]
+package-dir = { "invoiceops_env" = ".", "invoiceops_env.server" = "server" }
+
+[tool.setuptools.package-data]
+invoiceops_env = ["data/**/*.json", "*.yaml", "*.md"]

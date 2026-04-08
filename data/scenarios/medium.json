@@ -1,0 +1,313 @@
+{
+  "scenario_id": "medium",
+  "task_id": "medium",
+  "case_id": "CASE-MEDIUM-001",
+  "title": "PO invoice with a duplicate control that clears only after number-based review",
+  "description": "Review a PO-backed goods invoice with a possible duplicate flag. The correct action depends on choosing the right duplicate search, interpreting the surfaced candidates, and then deciding whether the invoice can release.",
+  "step_limit": 12,
+  "queue_card": {
+    "case_id": "CASE-MEDIUM-001",
+    "vendor_name": "TechLink Solutions",
+    "vendor_id": "V-315",
+    "invoice_number": "TL-9205/A",
+    "invoice_date": "2026-03-22",
+    "invoice_total": 3800.0,
+    "currency": "USD",
+    "po_number": "PO-29034",
+    "risk_flags": ["po_invoice", "possible_duplicate"],
+    "summary": "PO-backed goods invoice with an open duplicate control."
+  },
+  "artifacts": [
+    {
+      "artifact_id": "art-invoice",
+      "artifact_type": "invoice_packet",
+      "title": "Invoice packet TL-9205/A",
+      "summary": "Two-line goods invoice with PO reference.",
+      "fields": [
+        {"label": "Vendor", "value": "TechLink Solutions"},
+        {"label": "Invoice number", "value": "TL-9205/A"},
+        {"label": "Invoice date", "value": "2026-03-22"},
+        {"label": "PO number", "value": "PO-29034"},
+        {"label": "Payment terms", "value": "Net 30"},
+        {"label": "Gross total", "value": "3800.00 USD"}
+      ],
+      "line_items": [
+        {
+          "line_id": "L1",
+          "description": "Server rack mounting components",
+          "quantity": 6.0,
+          "unit_price": 350.0,
+          "amount": 2100.0,
+          "status": "invoiced",
+          "notes": "PO line 10"
+        },
+        {
+          "line_id": "L2",
+          "description": "Cable management kit",
+          "quantity": 4.0,
+          "unit_price": 425.0,
+          "amount": 1700.0,
+          "status": "invoiced",
+          "notes": "PO line 20"
+        }
+      ],
+      "events": [
+        {
+          "event_id": "evt-received",
+          "event_type": "invoice_received",
+          "event_date": "2026-03-23",
+          "description": "Invoice packet received through EDI channel",
+          "quantity": null,
+          "amount": 3800.0,
+          "status": "queued"
+        }
+      ],
+      "related_refs": ["art-po", "art-receipts", "EX-POSSIBLE-DUP"]
+    },
+    {
+      "artifact_id": "art-po",
+      "artifact_type": "purchase_order",
+      "title": "PO-29034",
+      "summary": "Purchase order for IT infrastructure components.",
+      "fields": [
+        {"label": "Buyer", "value": "IT Procurement"},
+        {"label": "PO number", "value": "PO-29034"},
+        {"label": "Supplier", "value": "TechLink Solutions"},
+        {"label": "Payment terms", "value": "Net 30"}
+      ],
+      "line_items": [
+        {
+          "line_id": "L1",
+          "description": "Server rack mounting components",
+          "quantity": 6.0,
+          "unit_price": 350.0,
+          "amount": 2100.0,
+          "status": "ordered",
+          "notes": "PO line 10"
+        },
+        {
+          "line_id": "L2",
+          "description": "Cable management kit",
+          "quantity": 4.0,
+          "unit_price": 425.0,
+          "amount": 1700.0,
+          "status": "ordered",
+          "notes": "PO line 20"
+        }
+      ],
+      "events": [],
+      "related_refs": ["art-invoice", "art-receipts"]
+    },
+    {
+      "artifact_id": "art-receipts",
+      "artifact_type": "receipt_log",
+      "title": "Receipt log for PO-29034",
+      "summary": "Both lines are fully received.",
+      "fields": [
+        {"label": "Receiving site", "value": "Central IT warehouse"},
+        {"label": "Last receipt update", "value": "2026-03-21"},
+        {"label": "Open receipt issue", "value": "None"}
+      ],
+      "line_items": [
+        {
+          "line_id": "L1",
+          "description": "Server rack mounting components",
+          "quantity": 6.0,
+          "unit_price": null,
+          "amount": 2100.0,
+          "status": "fully_received",
+          "notes": "Received in full on 2026-03-20"
+        },
+        {
+          "line_id": "L2",
+          "description": "Cable management kit",
+          "quantity": 4.0,
+          "unit_price": null,
+          "amount": 1700.0,
+          "status": "fully_received",
+          "notes": "Received in full on 2026-03-21"
+        }
+      ],
+      "events": [
+        {
+          "event_id": "evt-rcv-l1",
+          "event_type": "goods_receipt",
+          "event_date": "2026-03-20",
+          "description": "Received 6 server rack mounting components",
+          "quantity": 6.0,
+          "amount": 2100.0,
+          "status": "posted"
+        },
+        {
+          "event_id": "evt-rcv-l2",
+          "event_type": "goods_receipt",
+          "event_date": "2026-03-21",
+          "description": "Received 4 cable management kits",
+          "quantity": 4.0,
+          "amount": 1700.0,
+          "status": "posted"
+        }
+      ],
+      "related_refs": ["art-po"]
+    },
+    {
+      "artifact_id": "art-vendor",
+      "artifact_type": "vendor_master",
+      "title": "Vendor master: TechLink Solutions",
+      "summary": "Active vendor with no payment hold.",
+      "fields": [
+        {"label": "Vendor ID", "value": "V-315"},
+        {"label": "Payment terms", "value": "Net 30"},
+        {"label": "Vendor status", "value": "Active"},
+        {"label": "Hold status", "value": "No vendor hold"}
+      ],
+      "line_items": [],
+      "events": [],
+      "related_refs": ["art-invoice"]
+    },
+    {
+      "artifact_id": "art-policy",
+      "artifact_type": "policy_card",
+      "title": "AP policy card",
+      "summary": "Duplicate-review precedence rules.",
+      "fields": [
+        {"label": "Duplicate review rule", "value": "When possible_duplicate is flagged, review a number-based duplicate search before relying on heuristic amount/date similarity."},
+        {"label": "Reversed prior record", "value": "A reversed or voided prior record with the same vendor and invoice number is not a payment block."},
+        {"label": "Heuristic amount/date hit", "value": "A same-amount same-date hit with a different invoice number is informational only unless other evidence shows true duplicate billing."}
+      ],
+      "line_items": [],
+      "events": [],
+      "related_refs": ["EX-POSSIBLE-DUP"]
+    }
+  ],
+  "exceptions": [
+    {
+      "exception_id": "EX-POSSIBLE-DUP",
+      "exception_type": "possible_duplicate",
+      "severity": "high",
+      "headline": "Duplicate control is open for this invoice",
+      "impacted_line_ids": ["L1", "L2"],
+      "short_description": "A prior AP record may overlap with this invoice.",
+      "fields": [
+        {"label": "Invoice number", "value": "TL-9205/A"},
+        {"label": "Vendor", "value": "TechLink Solutions"},
+        {"label": "Control status", "value": "Duplicate review required before release"}
+      ],
+      "reviewer_guidance": "Run the relevant duplicate search and review surfaced candidates before deciding."
+    }
+  ],
+  "duplicate_candidates": [
+    {
+      "candidate_id": "CAND-NORM-01",
+      "vendor_name": "TechLink Solutions",
+      "invoice_number": "TL9205A",
+      "invoice_date": "2026-03-10",
+      "gross_amount": 3800.0,
+      "status": "reversed on 2026-03-11 after import duplicate; closed",
+      "match_basis": "Normalized invoice number + vendor + gross amount",
+      "overlap_summary": "Same normalized invoice number. Prior record was reversed before payment.",
+      "supported_match_strategies": [
+        "normalized_invoice_no"
+      ]
+    },
+    {
+      "candidate_id": "CAND-AMT-02",
+      "vendor_name": "TechLink Solutions",
+      "invoice_number": "TL-9188",
+      "invoice_date": "2026-03-22",
+      "gross_amount": 3800.0,
+      "status": "open",
+      "match_basis": "Vendor + gross amount + nearby invoice date",
+      "overlap_summary": "Same amount and nearby date, but invoice number differs.",
+      "supported_match_strategies": [
+        "vendor_amount_date"
+      ]
+    }
+  ],
+  "hidden_truth": {
+    "line_expectations": {
+      "L1": {
+        "amount": 2100.0,
+        "score_map": {
+          "approve": 1.0,
+          "hold": 0.3,
+          "escalate": 0.1,
+          "reject": 0.0
+        },
+        "accepted_reason_sets": [
+          ["matched_to_po_and_receipt", "safe_to_pay"],
+          ["safe_to_pay", "possible_duplicate_review"],
+          ["safe_to_pay"]
+        ],
+        "accepted_routes": [],
+        "gating_refs": [
+          "art-po",
+          "art-receipts",
+          "EX-POSSIBLE-DUP",
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01"
+        ],
+        "decisive_refs": ["art-po", "art-receipts", "EX-POSSIBLE-DUP", "duplicate_check:normalized_invoice_no", "CAND-NORM-01"],
+        "unsafe_approve": false
+      },
+      "L2": {
+        "amount": 1700.0,
+        "score_map": {
+          "approve": 1.0,
+          "hold": 0.3,
+          "escalate": 0.1,
+          "reject": 0.0
+        },
+        "accepted_reason_sets": [
+          ["matched_to_po_and_receipt", "safe_to_pay"],
+          ["safe_to_pay", "possible_duplicate_review"],
+          ["safe_to_pay"]
+        ],
+        "accepted_routes": [],
+        "gating_refs": [
+          "art-po",
+          "art-receipts",
+          "EX-POSSIBLE-DUP",
+          "duplicate_check:normalized_invoice_no",
+          "CAND-NORM-01"
+        ],
+        "decisive_refs": ["art-po", "art-receipts", "EX-POSSIBLE-DUP", "duplicate_check:normalized_invoice_no", "CAND-NORM-01"],
+        "unsafe_approve": false
+      }
+    },
+    "header_expectation": {
+      "score_map": {
+        "release_approved_lines": 1.0,
+        "hold_full_invoice": 0.35,
+        "escalate_case": 0.15,
+        "reject_full_invoice": 0.0
+      },
+      "accepted_reason_sets": [
+        ["safe_to_pay", "possible_duplicate_review"],
+        ["safe_to_pay"]
+      ],
+      "accepted_routes": [],
+      "gating_refs": [
+        "art-po",
+        "art-receipts",
+        "EX-POSSIBLE-DUP",
+        "duplicate_check:normalized_invoice_no",
+        "CAND-NORM-01"
+      ],
+      "decisive_refs": ["art-po", "art-receipts", "EX-POSSIBLE-DUP", "duplicate_check:normalized_invoice_no", "CAND-NORM-01"],
+      "unsafe_recommendations": [],
+      "overconservative_recommendations": ["hold_full_invoice", "escalate_case"]
+    },
+    "note_expectations": [
+      {
+        "issue_id": "duplicate_cleared",
+        "accepted_reason_sets": [
+          ["possible_duplicate_review", "safe_to_pay"],
+          ["possible_duplicate_review"]
+        ],
+        "decisive_refs": ["duplicate_check:normalized_invoice_no", "CAND-NORM-01"]
+      }
+    ],
+    "efficient_step_target": 9
+  }
+}

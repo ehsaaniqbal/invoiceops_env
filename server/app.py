@@ -20,6 +20,18 @@ app = create_app(
 )
 
 
+@app.get("/")
+def root() -> dict[str, object]:
+    """Provide a simple 200 OK landing response for Space health checks."""
+    return {
+        "name": "invoiceops_env",
+        "status": "ok",
+        "openenv": True,
+        "docs": "/docs",
+        "health": "/health",
+    }
+
+
 def _resolve_cli_args(
     default_host: str = "0.0.0.0",
     default_port: int = 8000,
